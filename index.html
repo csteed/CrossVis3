@@ -922,6 +922,49 @@
         });
     };
 
+    // load the EIA energy sample dataset
+    const loadEIAData = () => {
+      d3.csv("data/eia.csv")
+        .then(data => {
+          fileData = {
+            dimensions: [
+              {name: 'Region', type: 'categorical'},
+              {name: 'Balancing_Authority', type: 'categorical'},
+              {name: 'Date', type: 'temporal'},
+              {name: 'Hour', type: 'numerical'},
+              {name: 'Demand_Forecast', type: 'numerical'},
+              {name: 'Demand', type: 'numerical'},
+              {name: 'Net_Generation', type: 'numerical'},
+              {name: 'Total_Interchange', type: 'numerical'},
+              {name: 'Sum', type: 'numerical'},
+              {name: 'Demand_Adj', type: 'numerical'},
+              {name: 'Net_Generation_Adj', type: 'numerical'},
+              {name: 'Total_Interchange_Adj', type: 'numerical'},
+            ],
+            tuples: data.map(d => {
+              return {
+                Region: d.region,
+                Balancing_Authority: d.ba,
+                Date: new Date(d.date),
+                Hour: +d.hour,
+                Demand_Forecast: +d.demand_forecast,
+                Demand: +d.demand,
+                Net_Generation: +d.net_generation,
+                Total_Interchange: +d.total_interchange,
+                Sum: +d.sum,
+                Demand_Adj: +d.demand_adj,
+                Net_Generation_Adj: +d.net_generation_adj,
+                Total_Interchange_Adj: +d.total_interchange_adj
+              }
+            })
+          };
+          loadNewFileData(true);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    };
+
     // populate query dimension dropdown values
     const populateQueryDimensionDropdown = () => {
       const values = chartData.dimensions.filter(d => d.type !== 'temporal').map((d,i) => {
@@ -1821,6 +1864,15 @@
     window.onload = function () {
       setupBroadcastChannel();
       readVersionInfo();
+
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const sampleData = urlParams.get('sample_data');
+      if (sampleData === "cars") {
+        loadCarsData();
+      } else if (sampleData === "energy") {
+        loadEIAData();
+      }
     };
   </script>
 </body>
